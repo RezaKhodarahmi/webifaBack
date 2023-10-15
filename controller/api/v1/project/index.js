@@ -44,9 +44,10 @@ const getSingleProject = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const params = req.body;
+    const { data, customer, p_manager } = req.body;
+
     const checkExistProject = await Projects.findOne({
-      where: { name: params.name },
+      where: { name: data.name },
     });
 
     if (checkExistProject) {
@@ -56,7 +57,12 @@ const createProject = async (req, res) => {
       });
     }
 
-    await Projects.create({ ...params });
+    await Projects.create({
+      ...data,
+      customer_id: customer.id,
+      project_manager: p_manager.id,
+      plan_id: parseInt(data.plan_id),
+    });
 
     return res.status(201).json({
       error: false,
