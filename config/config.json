@@ -1,0 +1,24 @@
+{
+    "development": {
+      "username": "root",
+      "password": "",
+      "database": "webifa_dev",
+      "host": "localhost",
+      "dialect": "mysql"
+    },
+    "test": {
+      "username": "root",
+      "password": null,
+      "database": "webifa_test",
+      "host": "localhost",
+      "dialect": "mysql"
+    },
+    "production": {
+      "username": "webifa_re2323ytfa",
+      "password": "ALs-7t+&p}cy",
+      "database": "idtech_fanavaran_dev",
+      "host": "localhost",
+      "dialect": "mysql"
+    }
+  }
+  
