@@ -1,6 +1,19 @@
 const Users = require("../../../../models").Users;
 const Validation = require("../../../../utils/dashboard/validationSchema");
+const crypto = require("crypto");
 
+//Generate Referral code
+const generateCode = (length = 6) => {
+  const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // excluding characters like I, O, Q, 0, 1
+  let code = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = crypto.randomInt(0, charset.length);
+    code += charset.charAt(randomIndex);
+  }
+
+  return code;
+};
 const getUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
@@ -75,8 +88,10 @@ const createUser = async (req, res) => {
     if (req.file) {
       imageData = process.env.BASE_URL + "/" + req.file.path;
     }
+    const referralCode = generateCode();
     const user = await Users.create({
       ...data,
+      referralCode,
       avatar: imageData,
       attributes: { exclude: ["token", "password", "forgotToken", "contract"] },
     });
