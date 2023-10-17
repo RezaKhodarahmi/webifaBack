@@ -175,6 +175,7 @@ const HandleRequestForgetPass = async (req, res) => {
     });
   } catch (err) {
     // Send error response
+
     return res.status(500).json({
       err: true,
       message: "Server Error!",
@@ -217,6 +218,7 @@ const HandleVerifyForgetPass = async (req, res) => {
     });
   }
 };
+
 const HandleResetForgetPass = async (req, res) => {
   try {
     const { token, password } = req.body;

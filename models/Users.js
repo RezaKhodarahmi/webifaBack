@@ -117,5 +117,19 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  Users.associate = (models) => {
+    Users.hasOne(models.Teams, {
+      foreignKey: "team_lead",
+      as: "ledTeam",
+    });
+
+    Users.belongsToMany(models.Teams, {
+      through: "TeamMembers",
+      foreignKey: "user_id",
+      otherKey: "team_id",
+      as: "teams",
+    });
+  };
+
   return Users;
 };

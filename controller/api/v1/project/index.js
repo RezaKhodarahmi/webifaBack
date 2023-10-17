@@ -1,10 +1,11 @@
 //Import Model
 const Projects = require("../../../../models").Projects;
+const TeamProject = require("../../../../models").TeamProject;
+const Teams = require("../../../../models").Teams;
 
 const getProjects = async (req, res) => {
   try {
     const projects = await Projects.findAll({ where: { status: 1 } });
-
     return res.status(200).json({
       error: false,
       data: projects,
@@ -21,7 +22,16 @@ const getSingleProject = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const project = await Projects.findOne({ where: { id } });
+    const project = await Projects.findOne({
+      where: { id },
+      include: [
+        {
+          model: Teams,
+          as: "team",
+        },
+      ],
+    });
+    const teams = await Teams.findAll({ where: { status: 1 } });
     if (!project) {
       return res.status(404).json({
         error: true,
@@ -32,9 +42,9 @@ const getSingleProject = async (req, res) => {
     return res.status(200).json({
       error: false,
       data: project,
+      teams: teams,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
@@ -44,8 +54,7 @@ const getSingleProject = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const { data, customer, p_manager } = req.body;
-
+    const { data, customer, p_manager, team } = req.body;
     const checkExistProject = await Projects.findOne({
       where: { name: data.name },
     });
@@ -57,13 +66,16 @@ const createProject = async (req, res) => {
       });
     }
 
-    await Projects.create({
+    const project = await Projects.create({
       ...data,
       customer_id: customer.id,
       project_manager: p_manager.id,
       plan_id: parseInt(data.plan_id),
     });
-
+    await TeamProject.create({
+      project_id: project.dataValues.id,
+      team_id: parseInt(team),
+    });
     return res.status(201).json({
       error: false,
       message: "Project created successfully!",
@@ -135,10 +147,28 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const getTeams = async (req, res) => {
+  try {
+    const teams = await Teams.findAll({ where: { status: 1 } });
+
+    return res.status(200).json({
+      error: false,
+      data: teams,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: true,
+      message: "Server Error!",
+    });
+  }
+};
+
 module.exports = {
   getProjects,
   createProject,
   updateProject,
   getSingleProject,
   deleteProject,
+  getTeams,
 };
