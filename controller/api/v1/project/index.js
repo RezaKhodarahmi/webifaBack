@@ -27,7 +27,7 @@ const getSingleProject = async (req, res) => {
       include: [
         {
           model: Teams,
-          as: "team",
+          as: "teams",
         },
       ],
     });
@@ -42,9 +42,10 @@ const getSingleProject = async (req, res) => {
     return res.status(200).json({
       error: false,
       data: project,
-      teams: teams,
+      allTeams: teams,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
@@ -74,14 +75,13 @@ const createProject = async (req, res) => {
     });
     await TeamProject.create({
       project_id: project.dataValues.id,
-      team_id: parseInt(team),
+      team_id: parseInt(team.id),
     });
     return res.status(201).json({
       error: false,
       message: "Project created successfully!",
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
@@ -91,28 +91,53 @@ const createProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   try {
-    const params = req.body;
-    const project = await Projects.findOne({ where: { id: params.id } });
+    const { data, customer, p_manager, team, startDate, endDate } = req.body;
 
-    if (!project) {
-      return res.status(401).json({
+    // Check if the project exists
+    const existingProject = await Projects.findByPk(data.id);
+
+    if (!existingProject) {
+      return res.status(404).json({
         error: true,
-        message: `Project with this id ${params.id} doesn't exist!`,
+        message: "Project not found!",
       });
     }
 
-    for (const key in params) {
-      if (Object.hasOwnProperty.call(params, key)) {
-        project[key] = params[key];
-      }
+    // Update the project details
+    await existingProject.update({
+      ...data,
+      customer_id: customer.id,
+      start_date: startDate,
+      end_date: endDate,
+      project_manager: p_manager.id,
+      plan_id: parseInt(data.plan_id),
+    });
+
+    // Update the team for the project. If a team does not exist, create a new association.
+    const existingTeamProject = await TeamProject.findOne({
+      where: {
+        project_id: data.id,
+        team_id: parseInt(team.id),
+      },
+    });
+
+    if (existingTeamProject) {
+      await existingTeamProject.update({
+        team_id: parseInt(team.id),
+      });
+    } else {
+      await TeamProject.create({
+        project_id: data.id,
+        team_id: parseInt(team.id),
+      });
     }
-    await project.save();
 
     return res.status(200).json({
       error: false,
-      message: "The Project Updated successfully!",
+      message: "Project updated successfully!",
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
