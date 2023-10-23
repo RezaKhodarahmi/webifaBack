@@ -45,6 +45,7 @@ app.use(cors(corsOptions));
 
 //Dashboard routes
 app.use("/api/v1/auth", require("./routes/auth"));
+app.use("/api/v1/otp", require("./routes/api/v1/otp"));
 app.use("/api/v1", require("./routes/api/v1/register"));
 app.use("/api/v1/users", require("./routes/api/v1/users"));
 app.use("/api/v1/team", require("./routes/api/v1/team"));

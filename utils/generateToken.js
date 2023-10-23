@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const UserTokens = require("../models").user_tokens;
- 
+
 // Define an asynchronous function called `GenerateTokens` that takes a `user` object as input
 const GenerateToken = async (user) => {
   try {
@@ -28,7 +28,6 @@ const GenerateToken = async (user) => {
     return Promise.resolve({ accessToken, refreshToken });
   } catch (err) {
     // Log any errors that occur and return a rejected promise
-    console.error(err);
     return Promise.reject(err);
   }
 };

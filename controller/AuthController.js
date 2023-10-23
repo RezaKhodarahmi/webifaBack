@@ -11,7 +11,7 @@ const {
 const handelRegister = async (req, res) => {
   try {
     const { email, phone } = req.body;
-    //Validate body
+
     const { err } = bodyValidation.SignUpBodyValidation(req.body);
     if (err) {
       return res.status(400).json({

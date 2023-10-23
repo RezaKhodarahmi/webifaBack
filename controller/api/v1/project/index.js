@@ -38,7 +38,7 @@ const getSingleProject = async (req, res) => {
         message: `Project with this id ${id} doesn't exist!`,
       });
     }
-
+    console.log(project);
     return res.status(200).json({
       error: false,
       data: project,
