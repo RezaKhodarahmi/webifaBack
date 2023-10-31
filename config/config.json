@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "root",
-      "password": "",
-      "database": "webifa_dev",
+      "username": "webifair_crmsddwj2",
+      "password": "~Xp(BHp(8R-S",
+      "database": "webifair_crmadhj23",
       "host": "localhost",
       "dialect": "mysql"
     },

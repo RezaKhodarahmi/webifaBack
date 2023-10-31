@@ -2,6 +2,7 @@
 const Projects = require("../../../../models").Projects;
 const TeamProject = require("../../../../models").TeamProject;
 const Teams = require("../../../../models").Teams;
+const Tasks = require("../../../../models").Tasks;
 
 const getProjects = async (req, res) => {
   try {
@@ -31,21 +32,28 @@ const getSingleProject = async (req, res) => {
         },
       ],
     });
-    const teams = await Teams.findAll({ where: { status: 1 } });
+
     if (!project) {
       return res.status(404).json({
         error: true,
         message: `Project with this id ${id} doesn't exist!`,
       });
     }
-    console.log(project);
+    const tasks = await Tasks.findAll({
+      where: { project_id: project.id },
+      attributes: {
+        exclude: ["description", "project_id", "id", "createdAt", "updatedAt"],
+      },
+    });
+    const teams = await Teams.findAll({ where: { status: 1 } });
+
     return res.status(200).json({
       error: false,
       data: project,
       allTeams: teams,
+      tasks: tasks,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
@@ -55,7 +63,7 @@ const getSingleProject = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const { data, customer, p_manager, team } = req.body;
+    const { data, customer, p_manager, team, tasks } = req.body;
     const checkExistProject = await Projects.findOne({
       where: { name: data.name },
     });
@@ -77,11 +85,24 @@ const createProject = async (req, res) => {
       project_id: project.dataValues.id,
       team_id: parseInt(team.id),
     });
+
+    if (tasks) {
+      for (const task of Object.values(tasks)) {
+        await Tasks.create({
+          title: task.title,
+          project_id: project.id,
+          description: task.title,
+          is_done: task.done,
+        });
+      }
+    }
+
     return res.status(201).json({
       error: false,
       message: "Project created successfully!",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: true,
       message: "Server Error!",
@@ -91,7 +112,8 @@ const createProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   try {
-    const { data, customer, p_manager, team, startDate, endDate } = req.body;
+    const { data, customer, p_manager, team, startDate, endDate, tasks } =
+      req.body;
 
     // Check if the project exists
     const existingProject = await Projects.findByPk(data.id);
@@ -112,6 +134,18 @@ const updateProject = async (req, res) => {
       project_manager: p_manager.id,
       plan_id: parseInt(data.plan_id),
     });
+    await Tasks.destroy({ where: { project_id: existingProject.id } });
+
+    if (tasks) {
+      for (const task of Object.values(tasks)) {
+        await Tasks.create({
+          title: task.title,
+          project_id: existingProject.id,
+          description: task.title,
+          is_done: task.is_done,
+        });
+      }
+    }
 
     // Update the team for the project. If a team does not exist, create a new association.
     const existingTeamProject = await TeamProject.findOne({
