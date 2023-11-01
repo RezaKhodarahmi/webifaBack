@@ -21,12 +21,7 @@ const cors = require("cors");
 app.use("/uploads", express.static("uploads"));
 app.use(credentials);
 app.use(express.json());
-// app.use(
-//   "/",
-//   express.static(
-//     path.join(__dirname, "/var/www/fanavaranServer/faserver/public")
-//   )
-// );
+
 app.use(bodyParser.raw({ type: "application/json" }));
 
 // CORS middleware configuration
@@ -36,14 +31,8 @@ const corsOptions = {
     "https://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
-    "https://webifa.ir",
-    "https://webifa.ir/app",
-    "http://webifa.ir",
-    "http://webifa.ir/app",
-    "http://webifa.site",
-    "https://webifa.site",
-    "https://webifa.site/app",
-    "http://webifa.site/app",
+    "http://my.webifa.ir",
+    "https://my.webifa.ir",
   ],
   credentials: true,
 };
